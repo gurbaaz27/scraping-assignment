@@ -1,6 +1,8 @@
 from selenium import webdriver
 from selenium.webdriver.support.ui import Select
 from webdriver_manager.chrome import ChromeDriverManager
+from bs4 import BeautifulSoup
+import re
 import json
 from time import time
 from time import sleep
@@ -64,29 +66,41 @@ cases = driver.find_elements_by_xpath("//tr[@class='odd']/td[1]/a[@href]")
 cases += driver.find_elements_by_xpath("//tr[@class='even']/td[1]/a[@href]")
 cases = [case.get_attribute("href") for case in cases]
 # print(cases[:10])
-print(len(cases)+'\n')
+print(len(cases))
 
 """ Case Info. Target =>
 1. case information
 2. defendant information
 3. charge and disposition information
 """
+# data = {}
+# for case in cases[:1]:
+#     driver.get(case)
+#     # tables = driver.find_elements_by_xpath("//table")
+#     # # print(len(tables)) should be 28
+#     # print(len(tables))
+#     # labels = driver.find_elements_by_css_selector('span[class="FirstColumnPrompt"]')
+#     # keys = driver.find_elements_by_xpath()
+#     # print(len(labels),len(keys))
+#     soup = BeautifulSoup(driver.page_source)
+#     # print(soup.prettify())
+#     x = soup.body.get_text()
+#     # rows = driver.find_elements_by_xpath("//table")
+#     delimiters = "Case Information","Defendant Information","Schedule Information","Charge and Disposition Information","Related Person Information"
+#     regexPattern = '|'.join(map(re.escape, delimiters))
+#     y = re.split(regexPattern, x)
+#     print(y[1:])
+#     print(len(y[1:]))
 data = {}
-# for case in cases:
-driver.get(cases[0])
-tables = driver.find_elements_by_xpath("//table")
-# print(len(tables)) should be 28
-print(len(tables))
-labels = driver.find_elements_by_css_selector('span[class="FirstColumnPrompt"]')
-keys = driver.find_elements_by_xpath()
-print(len(labels),len(keys))
+i = 0
+for case in cases:
+    driver.get(case)
+    soup = BeautifulSoup(driver.page_source, features="lxml")
+    x = soup.body.get_text()
+    data[i] = x
+    i += 1
 
-
-
-
-
-
-# with open('data.json', 'a') as f:
-#     json.dump("", f)
+with open('data.json', 'a') as f:
+    json.dump(data, f)
 
 driver.quit()
