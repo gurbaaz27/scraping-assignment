@@ -97,10 +97,19 @@ for case in cases:
     driver.get(case)
     soup = BeautifulSoup(driver.page_source, features="lxml")
     x = soup.body.get_text()
-    data[i] = x
+
+    delimiters = "Case Information","Defendant Information","Schedule Information","Charge and Disposition Information","Related Person Information"
+    regexPattern = '|'.join(map(re.escape, delimiters))
+    y = re.split(regexPattern, x)
+    data[i] = {}
+    data[i]["Case Information"] = y[1]
+    data[i]["Defendant Information"] = y[2]
+    data[i]["Charge and Disposition Information"] = y[4]
     i += 1
 
-with open('data.json', 'a') as f:
+with open('data.json', 'w') as f:
     json.dump(data, f)
 
+end = time()
+print("Time taken is %.2f min (or %d sec)" % (((end-start)/60), end-start))
 driver.quit()
